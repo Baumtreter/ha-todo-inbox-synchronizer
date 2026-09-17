@@ -1,10 +1,10 @@
 # To-do Inbox Synchronizer
 
-> **VIBE-CODE DISCLAIMER: CODE WRITTEN WITH AI ASSISTANCE**
+> **AI DISCLOSURE: THIS BLUEPRINT WAS BUILT WITH AI**
 >
-> This blueprint and this README were created with AI assistance. I defined the problem, the constraints, and the acceptance tests. The AI generated the YAML and helped with the documentation. I reviewed the output and tested it in Home Assistant.
+> I had the problem. The AI had the keyboard. I defined what it should do, tested it in Home Assistant, and fixed the bits that tried to become interesting. I am not a developer, programmer, or coder. I wanted Alexa to put groceries in the right list, not a new job title.
 >
-> The automation works in the tested scenario. This is a useful fact. It is not a guarantee. Please do not confuse the two. That mistake has already caused enough software.
+> It works in my tested setup. That is all I am claiming. Please test it in your own Home Assistant before giving it the family shopping list. The AI is confident. The AI is not liable.
 
 ## Why this exists
 
@@ -97,13 +97,6 @@ This blueprint is not bidirectional synchronization. Changes made in the target 
 
 Two lists arguing over who owns "milk" is not a synchronization strategy. It is an administrative failure with dairy.
 
-## Before trusting it with groceries
+## Test it first
 
-- Parse the YAML with a loader that understands Home Assistant's `!input` tag.
-- Verify the trigger is `todo.item_added` and targets the source input.
-- Verify `todo.add_item` targets the target input.
-- Verify `todo.remove_item` targets the source input and uses the source UID.
-- Verify the same-entity guard and the new-items-only behavior.
-- Test one temporary source item and remove the temporary target item after the transfer is confirmed.
-- The repository is private during review; make it public before sharing the import link.
-- Verify the raw import URL after changing repository visibility.
+Create the automation with two different `todo.*` lists. Add one unique temporary item to the source list. Confirm that it appears in the target list and disappears from the source list. Delete the test item from the target list afterward.

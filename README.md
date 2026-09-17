@@ -1,2 +1,104 @@
-# ha-todo-inbox-synchronizer
-Reusable Home Assistant blueprint for one-way to-do inbox synchronization
+# To-do Inbox Synchronizer
+
+A reusable Home Assistant automation blueprint for moving newly added items from one `todo.*` list to another.
+
+Typical use case: use an Alexa shopping list as a voice inbox and move new items into a Bring! list, where the target list remains authoritative.
+
+## What it does
+
+- Watches the selected **source** to-do list for `todo.item_added`.
+- Processes only the UIDs delivered by that trigger.
+- Copies the item summary and description to the selected **target** list.
+- Removes the exact source item by UID after the target add action succeeds.
+- Avoids duplicates by comparing open target summaries case-insensitively and ignoring surrounding whitespace.
+- Ignores completed history and does not migrate items that already existed when the automation was created.
+- Uses `mode: queued` so quick successive additions are not cancelled by a restart.
+
+The source and target must be different entities. A guard in the blueprint stops the automation if the same entity is selected twice.
+
+## Requirements
+
+The selected integrations must expose the Home Assistant to-do contract used here:
+
+- `todo.item_added`
+- `todo.get_items`
+- `todo.add_item`
+- `todo.remove_item`
+
+The blueprint copies the summary and description only. Other provider-specific metadata, such as due dates or labels, is not copied.
+
+## Import
+
+1. Host `to-do-inbox-synchronizer.yaml` at a public GitHub repository or Gist.
+2. In Home Assistant, open **Settings → Automations & scenes → Blueprints**.
+3. Select **Import Blueprint** and paste the public URL. Home Assistant can import a blueprint from GitHub or a Gist.
+4. Create an automation from the imported blueprint and choose the source and target entities.
+5. Reload automations after changing the blueprint file.
+
+If the blueprint is published in a GitHub repository, add its normal GitHub page URL as `blueprint.source_url` before posting it to the community. The file deliberately does not contain a fabricated URL.
+
+## Example: Alexa → Bring!
+
+For the original use case:
+
+```yaml
+source_list: todo.source_list
+target_list: todo.target_list
+```
+
+This mapping is an example only. The shared blueprint itself contains no Alexa- or Bring!-specific entity IDs.
+
+## Important behavior
+
+### New items only
+
+Existing open items in the source list are intentionally left alone. This avoids an unexpected bulk migration when an automation is first created. Add or move those items manually if an initial migration is wanted.
+
+### Failure safety
+
+The source removal is placed after `todo.add_item`. With Home Assistant's normal script error handling, a failed target add stops the sequence before the source removal, so the source item remains available for inspection or retry.
+
+### Duplicate handling
+
+If an open target item has the same normalized summary, the blueprint does not add another copy and removes the source inbox item. This is intentional for shopping-list inboxes. It does not merge quantities or provider-specific metadata.
+
+### One-way only
+
+This blueprint is not bidirectional synchronization. Changes made in the target list do not affect the source list, and completed target items are not copied back.
+
+## Copy-ready community post
+
+### Suggested title
+
+**[Blueprint] To-do Inbox Synchronizer — move new items between to-do lists**
+
+### Suggested post
+
+This blueprint turns one Home Assistant to-do list into an inbox for another list.
+
+It is useful when a voice assistant can reliably add to one list, while another list should remain the household's source of truth. The blueprint watches the source list for newly added items, copies the summary and description to the target list, and then removes the exact source item by UID. Existing source items and completed history are ignored.
+
+The blueprint is provider-agnostic: select any two different `todo.*` entities that support the required to-do trigger and actions. Open target items are compared case-insensitively to avoid duplicate entries. It is intentionally one-way; it does not try to reconcile two independent lists or sync completions back.
+
+**Import:** `[PUBLIC_BLUEPRINT_URL]`
+
+**Example:** Alexa shopping list → Bring! list
+
+```yaml
+source_list: todo.source_list
+target_list: todo.target_list
+```
+
+Please report the Home Assistant version, source/target integrations, automation trace, and relevant log message when troubleshooting. Do not paste access tokens or full private configuration files.
+
+## Local validation checklist
+
+Before publishing:
+
+- Parse the YAML with a loader that understands Home Assistant's `!input` tag.
+- Verify the trigger is `todo.item_added` and targets the source input.
+- Verify `todo.add_item` targets the target input.
+- Verify `todo.remove_item` targets the source input and uses the source UID.
+- Verify the same-entity guard and the new-items-only behavior are documented.
+- Test one temporary source item and remove the temporary target item after the transfer is confirmed.
+- Replace `[PUBLIC_BLUEPRINT_URL]` in the forum post with the hosted URL.

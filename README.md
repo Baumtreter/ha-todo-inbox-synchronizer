@@ -69,30 +69,9 @@ If an open target item has the same normalized summary, the blueprint does not a
 
 This blueprint is not bidirectional synchronization. Changes made in the target list do not affect the source list, and completed target items are not copied back.
 
-## Copy-ready community post
+## Community post
 
-### Suggested title
-
-**[Blueprint] To-do Inbox Synchronizer — move new items between to-do lists**
-
-### Suggested post
-
-This blueprint turns one Home Assistant to-do list into an inbox for another list.
-
-It is useful when a voice assistant can reliably add to one list, while another list should remain the household's source of truth. The blueprint watches the source list for newly added items, copies the summary and description to the target list, and then removes the exact source item by UID. Existing source items and completed history are ignored.
-
-The blueprint is provider-agnostic: select any two different `todo.*` entities that support the required to-do trigger and actions. Open target items are compared case-insensitively to avoid duplicate entries. It is intentionally one-way; it does not try to reconcile two independent lists or sync completions back.
-
-**Import:** `https://raw.githubusercontent.com/Baumtreter/ha-todo-inbox-synchronizer/main/to-do-inbox-synchronizer.yaml`
-
-**Example:** Alexa shopping list → Bring! list
-
-```yaml
-source_list: todo.source_list
-target_list: todo.target_list
-```
-
-Please report the Home Assistant version, source/target integrations, automation trace, and relevant log message when troubleshooting. Do not paste access tokens or full private configuration files.
+The copy-ready community post lives in [`COMMUNITY_POST.md`](COMMUNITY_POST.md), intentionally outside this technical README.
 
 ## Local validation checklist
 

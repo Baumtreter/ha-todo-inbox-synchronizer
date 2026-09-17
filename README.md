@@ -29,13 +29,16 @@ The blueprint copies the summary and description only. Other provider-specific m
 
 ## Import
 
-1. Host `to-do-inbox-synchronizer.yaml` at a public GitHub repository or Gist.
-2. In Home Assistant, open **Settings → Automations & scenes → Blueprints**.
-3. Select **Import Blueprint** and paste the public URL. Home Assistant can import a blueprint from GitHub or a Gist.
-4. Create an automation from the imported blueprint and choose the source and target entities.
-5. Reload automations after changing the blueprint file.
+The repository currently is private for review. The import URL is ready, but it becomes usable by other Home Assistant users only after the repository is made public:
 
-If the blueprint is published in a GitHub repository, add its normal GitHub page URL as `blueprint.source_url` before posting it to the community. The file deliberately does not contain a fabricated URL.
+`https://raw.githubusercontent.com/Baumtreter/ha-todo-inbox-synchronizer/main/to-do-inbox-synchronizer.yaml`
+
+1. In Home Assistant, open **Settings → Automations & scenes → Blueprints**.
+2. Select **Import Blueprint** and paste the URL above. Home Assistant can import a blueprint from GitHub or a Gist.
+3. Create an automation from the imported blueprint and choose the source and target entities.
+4. Reload automations after changing the blueprint file.
+
+The blueprint includes the matching GitHub page URL as `blueprint.source_url` so future updates can be tracked.
 
 ## Example: Alexa → Bring!
 
@@ -80,7 +83,7 @@ It is useful when a voice assistant can reliably add to one list, while another 
 
 The blueprint is provider-agnostic: select any two different `todo.*` entities that support the required to-do trigger and actions. Open target items are compared case-insensitively to avoid duplicate entries. It is intentionally one-way; it does not try to reconcile two independent lists or sync completions back.
 
-**Import:** `[PUBLIC_BLUEPRINT_URL]`
+**Import:** `https://raw.githubusercontent.com/Baumtreter/ha-todo-inbox-synchronizer/main/to-do-inbox-synchronizer.yaml`
 
 **Example:** Alexa shopping list → Bring! list
 
@@ -101,4 +104,5 @@ Before publishing:
 - Verify `todo.remove_item` targets the source input and uses the source UID.
 - Verify the same-entity guard and the new-items-only behavior are documented.
 - Test one temporary source item and remove the temporary target item after the transfer is confirmed.
-- Replace `[PUBLIC_BLUEPRINT_URL]` in the forum post with the hosted URL.
+- The repository is private during review; make it public before posting the import link to the community.
+- Verify the raw import URL after changing repository visibility.

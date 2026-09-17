@@ -1,8 +1,16 @@
 # To-do Inbox Synchronizer
 
-A reusable Home Assistant automation blueprint for moving newly added items from one `todo.*` list to another.
+> **DISCLAIMER: CODE WRITTEN BY A VIBE-CODED AI**
+>
+> This blueprint and most of this README were created with AI assistance. I defined the problem, the behavior, and the acceptance tests. The AI wrote the YAML and helped with the documentation. I reviewed and tested the result in Home Assistant, but I am not pretending that writing prompts turns me into a developer. It turns out it can still produce a useful blueprint. Please review it before you use it.
 
-Typical use case: use an Alexa shopping list as a voice inbox and move new items into a Bring! list, where the target list remains authoritative.
+## Why this exists
+
+Alexa was a convenient voice inbox for shopping items. Then Amazon improved the Alexa+ experience even further. No. Not really.
+
+In my setup, getting a newly spoken item onto the shopping list I actually use became unnecessarily awkward. Bring! remains the household's actual shopping list. Alexa is the fast input channel. This blueprint connects the two without turning them into two competing sources of truth.
+
+The shared blueprint stays provider-agnostic. It lets you choose any two different `todo.*` entities. My use case is Alexa as the inbox and Bring! as the target, but the YAML contains no personal entity IDs.
 
 ## What it does
 
@@ -69,10 +77,6 @@ If an open target item has the same normalized summary, the blueprint does not a
 
 This blueprint is not bidirectional synchronization. Changes made in the target list do not affect the source list, and completed target items are not copied back.
 
-## Community post
-
-The copy-ready community post lives in [`COMMUNITY_POST.md`](COMMUNITY_POST.md), intentionally outside this technical README.
-
 ## Local validation checklist
 
 Before publishing:
@@ -83,5 +87,5 @@ Before publishing:
 - Verify `todo.remove_item` targets the source input and uses the source UID.
 - Verify the same-entity guard and the new-items-only behavior are documented.
 - Test one temporary source item and remove the temporary target item after the transfer is confirmed.
-- The repository is private during review; make it public before posting the import link to the community.
+- The repository is private during review; make it public before sharing the import link.
 - Verify the raw import URL after changing repository visibility.

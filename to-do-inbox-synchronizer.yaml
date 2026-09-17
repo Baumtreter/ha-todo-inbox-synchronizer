@@ -1,0 +1,113 @@
+# Home Assistant automation blueprint
+# To-do Inbox Synchronizer (one-way)
+#
+# Moves newly added open items from one to-do list to another. The source item
+# is removed only after the target add action has completed successfully. If an
+# open item with the same summary already exists in the target list, the source
+# item is removed without creating a duplicate.
+#
+# Existing source items are intentionally not migrated. Completed history is
+# not read or modified.
+
+blueprint:
+  name: To-do inbox synchronizer
+  description: >-
+    Move newly added open items from one to-do list to another. The source item
+    is removed after the target add action succeeds. Matching open summaries in
+    the target list are not duplicated. Existing source items are not migrated,
+    and completed history is ignored. Choose two different to-do entities.
+  domain: automation
+  source_url: https://github.com/Baumtreter/ha-todo-inbox-synchronizer/blob/main/to-do-inbox-synchronizer.yaml
+  input:
+    source_list:
+      name: Source to-do list
+      description: >-
+        The inbox list to watch. Only items added after the automation is
+        created are processed.
+      selector:
+        entity:
+          filter:
+            - domain: todo
+    target_list:
+      name: Target to-do list
+      description: >-
+        The list that receives new items. It must be a different to-do entity
+        from the source list.
+      selector:
+        entity:
+          filter:
+            - domain: todo
+
+mode: queued
+max: 20
+
+triggers:
+  - trigger: todo.item_added
+    target:
+      entity_id: !input source_list
+    id: source_item_added
+
+actions:
+  - variables:
+      source_entity: !input source_list
+      target_entity: !input target_list
+
+  # Selecting the same entity twice would otherwise remove the source item.
+  - condition: template
+    value_template: "{{ source_entity != target_entity }}"
+
+  # The trigger provides the UIDs of the newly added items. Read the source
+  # list to obtain summaries/descriptions for those exact UIDs.
+  - action: todo.get_items
+    target:
+      entity_id: !input source_list
+    data:
+      status: needs_action
+    response_variable: source_items
+
+  - repeat:
+      for_each: >-
+        {{ source_items[source_entity]['items']
+           | selectattr('uid', 'in', trigger.item_ids)
+           | list }}
+      sequence:
+        - variables:
+            item_summary: "{{ repeat.item.summary }}"
+            item_uid: "{{ repeat.item.uid }}"
+            item_description: >-
+              {{ repeat.item.description | default('', true) }}
+
+        # Read the target for each item so a batch of identical additions does
+        # not rely on one stale target snapshot.
+        - action: todo.get_items
+          target:
+            entity_id: !input target_list
+          data:
+            status: needs_action
+          response_variable: target_items
+
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: >-
+                    {{ item_summary | trim | lower not in
+                       (target_items[target_entity]['items']
+                        | map(attribute='summary')
+                        | map('trim')
+                        | map('lower')
+                        | list) }}
+              sequence:
+                - action: todo.add_item
+                  target:
+                    entity_id: !input target_list
+                  data:
+                    item: "{{ item_summary }}"
+                    description: "{{ item_description }}"
+
+        # Use the source UID rather than the summary. This remains deterministic
+        # when the source list contains identical summaries.
+        - action: todo.remove_item
+          target:
+            entity_id: !input source_list
+          data:
+            item: "{{ item_uid }}"

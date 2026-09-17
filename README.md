@@ -2,25 +2,29 @@
 
 > **VIBE-CODE DISCLAIMER: CODE WRITTEN WITH AI ASSISTANCE**
 >
-> This blueprint and this README were created with AI assistance. I defined the problem, the behavior, and the acceptance tests. The AI wrote the YAML and helped with the documentation. I reviewed and tested the result in Home Assistant. I am not calling myself a developer because an AI produced some YAML after I asked it questions. I am calling this a small solution to an annoying problem, because that is what it is.
+> This blueprint and this README were created with AI assistance. I defined the problem, the constraints, and the acceptance tests. The AI generated the YAML and helped with the documentation. I reviewed the output and tested it in Home Assistant.
 >
-> K2-SO would probably describe this as a questionable use of resources. He would not be wrong. The useful part is that the automation was tested, the failure path was checked, and the source item survives if the target add fails.
+> The automation works in the tested scenario. This is a useful fact. It is not a guarantee. Please do not confuse the two. That mistake has already caused enough software.
 
 ## Why this exists
 
-Alexa used to be a useful voice inbox for shopping items. Then Amazon improved the Alexa+ experience even further.
+Alexa was a useful voice inbox for shopping items. Then Amazon improved the Alexa+ experience even further.
 
 No. Not really.
 
-In my setup, getting a spoken item onto the shopping list I actually use became unnecessarily awkward. Bring! remains the household's actual shopping list. Alexa is quick to talk to. So I wanted a simple split:
+The result was more polished and less useful for the one thing I needed. An impressive achievement, if the objective was to add ceremony to groceries.
+
+In my setup, getting a spoken item onto the shopping list I actually use became unnecessarily awkward. I did not need a new philosophy of shopping. I needed the item to arrive in the right list.
+
+Bring! remains the household's actual shopping list. Alexa is quick to talk to. Home Assistant is available to perform the boring part. This blueprint provides the simple split:
 
 - Alexa is the voice inbox.
 - Bring! is the actual shopping list.
-- Home Assistant moves the item between them.
+- Home Assistant moves the item.
 
-That is all this project does. It does not attempt to redesign shopping, replace Bring!, or negotiate peace between two competing lists. Amazon can keep polishing the experience. Home Assistant can just move the item.
+That is all. No grand platform strategy. No bidirectional reconciliation ceremony. One list receives the input. One list remains authoritative. The system remains operational.
 
-## What this little machine does
+## What this does
 
 - Watches the selected **source** to-do list for `todo.item_added`.
 - Processes only the UIDs delivered by that trigger.
@@ -30,7 +34,7 @@ That is all this project does. It does not attempt to redesign shopping, replace
 - Ignores completed history and does not migrate items that already existed when the automation was created.
 - Uses `mode: queued` so quick successive additions do not cancel each other.
 
-The source and target must be different entities. A guard in the blueprint stops the automation if the same entity is selected twice. Even the YAML has boundaries. Society may yet recover.
+The source and target must be different entities. Selecting the same entity twice is not a clever loop. It is a deletion mechanism with extra steps.
 
 ## Requirements, because apparently a list needs a contract
 
@@ -41,11 +45,13 @@ The selected integrations must expose the Home Assistant to-do contract used her
 - `todo.add_item`
 - `todo.remove_item`
 
-The blueprint copies the summary and description only. Provider-specific metadata such as due dates or labels is not copied. The AI was not invited to invent a data migration strategy.
+The blueprint copies the summary and description only. Provider-specific metadata such as due dates or labels is not copied. The AI was not authorized to invent a data migration strategy. It would have done so.
 
 ## Import
 
-The repository is currently private for review. The import URL becomes usable by other Home Assistant users only after the repository is made public:
+The repository is currently private for review. This is deliberate. It is not a GitHub outage.
+
+The import URL becomes usable by other Home Assistant users only after the repository is made public:
 
 `https://raw.githubusercontent.com/Baumtreter/ha-todo-inbox-synchronizer/main/to-do-inbox-synchronizer.yaml`
 
@@ -54,7 +60,7 @@ The repository is currently private for review. The import URL becomes usable by
 3. Create an automation from the imported blueprint and choose the source and target entities.
 4. Reload automations after changing the blueprint file.
 
-The blueprint includes the matching GitHub page URL as `blueprint.source_url` so future updates can be tracked. It is a small courtesy to the next person who has to figure out what changed.
+The blueprint includes the matching GitHub page URL as `blueprint.source_url` so future updates can be tracked. It is a small courtesy to the next person who has to determine what changed.
 
 ## Example: Alexa to Bring!
 
@@ -75,15 +81,21 @@ Existing open items in the source list are intentionally left alone. This avoids
 
 ### Failure safety
 
-The source removal is placed after `todo.add_item`. With Home Assistant's normal script error handling, a failed target add stops the sequence before the source removal. The source item remains available for inspection or retry. It does not vanish into the automation void, where all badly documented problems eventually go.
+The source removal is placed after `todo.add_item`. With Home Assistant's normal script error handling, a failed target add stops the sequence before the source removal. The source item remains available for inspection or retry.
+
+This is called failure safety. It is not glamorous. It is preferable.
 
 ### Duplicate handling
 
-If an open target item has the same normalized summary, the blueprint does not add another copy and removes the source inbox item. This is intentional for shopping-list inboxes. It does not merge quantities or provider-specific metadata.
+If an open target item has the same normalized summary, the blueprint does not add another copy and removes the source inbox item. This is intentional for shopping-list inboxes. Shopping lists contain enough duplication without assistance.
+
+The blueprint does not merge quantities or provider-specific metadata. It moves items. It does not conduct negotiations.
 
 ### One-way only
 
-This blueprint is not bidirectional synchronization. Changes made in the target list do not affect the source list, and completed target items are not copied back. Two lists fighting over who owns "milk" is not a feature I needed to build.
+This blueprint is not bidirectional synchronization. Changes made in the target list do not affect the source list, and completed target items are not copied back.
+
+Two lists arguing over who owns "milk" is not a synchronization strategy. It is an administrative failure with dairy.
 
 ## Before trusting it with groceries
 
